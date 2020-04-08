@@ -12,6 +12,8 @@
 using namespace std;
 using namespace std::chrono_literals;
 
+// Wow this is slow. 
+
 int main(void) {
     // Const
     const int MATRIX_SIZE = 100;
@@ -58,8 +60,9 @@ int main(void) {
     for (int i = 0; i < 10000; i++) {
         for (int j = 0; j < 10000; j++) {
             system("cls");
-            std::cout << "Currently on iteration " << i << "/10000 and on sweep " << j << "/10000." << endl;
-            std::cout << std::setprecision(3) << ((i + 1) * (j + 1)/(10000*10000)) * 100 << "% done";
+            double percent = (((i * 10000.0) + j) / (10000.0 * 10000.0)) * 100.0;
+            std::cout << "Currently on iteration " << i+1 << "/10000 and on sweep " << j+1 << "/10000." << endl;
+            std::cout << std::setprecision(8) << percent << "% done";
 
             if (DEBUG) {
                 cout << "does it get here";
