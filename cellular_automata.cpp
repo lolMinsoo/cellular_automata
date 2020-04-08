@@ -12,8 +12,6 @@
 using namespace std;
 using namespace std::chrono_literals;
 
-// Wow this is slow. 
-
 int main(void) {
     // Const
     const int MATRIX_SIZE = 100;
@@ -28,7 +26,7 @@ int main(void) {
 
     // Create file
     ofstream output_file;
-    ofstream final_state;
+    // ofstream final_state;
 
     // Variables
     int random_x, random_y;
@@ -59,14 +57,16 @@ int main(void) {
     // Do the things
     for (int i = 0; i < 10000; i++) {
         for (int j = 0; j < 10000; j++) {
-            system("cls");
-            double percent = (((i * 10000.0) + j) / (10000.0 * 10000.0)) * 100.0;
+            // system("cls");
+            // double percent = (((i * 10000.0) + j) / (10000.0 * 10000.0)) * 100.0;
             std::cout << "Currently on iteration " << i+1 << "/10000 and on sweep " << j+1 << "/10000." << endl;
-            std::cout << std::setprecision(8) << percent << "% done";
+            // std::cout << std::setprecision(8) << percent << "% done";
 
+            /*
             if (DEBUG) {
                 cout << "does it get here";
             }
+            */
 
             // Generate random values
             random_x = random_cell(mt);
@@ -84,13 +84,13 @@ int main(void) {
                 }
 
             }
-
+            /*
             if (DEBUG) {
                 cout << random_x;
                 cout << random_y;
                 cout << adjacent;
             }
-
+            */
             // Update states
             hold_state = state[random_x][random_y];
             switch (adjacent) {
@@ -116,11 +116,11 @@ int main(void) {
                 break;
             }
             
+            /*
             if (DEBUG) {
                 std::this_thread::sleep_for(1s);
             }
-            
-
+            */
         }
 
         for (int k = 0; k < MATRIX_SIZE; k++) {
@@ -130,7 +130,7 @@ int main(void) {
             output_file << "\n";
         }
         output_file << "\n";
-
+        /*
         if (i == 9999) {
             final_state.open("final_sweep.txt");
             for (int k = 0; k < MATRIX_SIZE; k++) {
@@ -142,6 +142,7 @@ int main(void) {
             final_state << "\n";
             final_state.close();
         }
+        */
     }
 
     output_file.close();
