@@ -56,10 +56,11 @@ int main(void) {
 
     // Do the things
     for (int i = 0; i < 10000; i++) {
+        std::cout << i + 1 << endl;
         for (int j = 0; j < 10000; j++) {
             // system("cls");
             // double percent = (((i * 10000.0) + j) / (10000.0 * 10000.0)) * 100.0;
-            std::cout << "Currently on iteration " << i+1 << "/10000 and on sweep " << j+1 << "/10000." << endl;
+            
             // std::cout << std::setprecision(8) << percent << "% done";
 
             /*
@@ -73,16 +74,18 @@ int main(void) {
             random_y = random_cell(mt);
 
             check_wall = false;
+            adjacent = random_adj(mt);
 
-            while (!check_wall) {
+            while (((random_x == 0 && adjacent == 1 || random_x == MATRIX_SIZE - 1 && adjacent == 3) || (random_y == 0 && adjacent == 4 || random_y == MATRIX_SIZE - 1 && adjacent == 2))) {
                 adjacent = random_adj(mt);
                 // cout << "looping";
 
                 // Check x-axis walls and y-axis walls
+                /*
                 if (!((random_x == 0 && adjacent == 1 || random_x == MATRIX_SIZE - 1 && adjacent == 3) || (random_y == 0 && adjacent == 4 || random_y == MATRIX_SIZE - 1 && adjacent == 2))) {
                     check_wall = true;
                 }
-
+                */
             }
             /*
             if (DEBUG) {
