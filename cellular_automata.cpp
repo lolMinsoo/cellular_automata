@@ -4,111 +4,142 @@
 #include <iterator>
 #include <random>
 #include <fstream>
+#include <chrono>
+#include <thread>
+#include <stdlib.h>
+#include <iomanip>
 
 using namespace std;
-
-bool check(int random_x, int random_y, int adjacent) {
-    try {
-        // Check x
-        if ((random_x == 0 && adjacent == 1) || (random_x == 99 && adjacent == 3)) {
-            throw 0;
-        }
-
-        if ((random_y == 0 && adjacent == 2) || (random_y == 99 && adjacent == 4)) {
-            throw 0;
-        }
-    }
-    catch (int x) {
-        return false;
-    }
-    return true;
-}
+using namespace std::chrono_literals;
 
 int main(void) {
+    // Const
+    const int MATRIX_SIZE = 100;
+    bool check_wall;
+    bool DEBUG = false;
 
-
-    // Initalize Variables
-    int random_x;
-    int random_y;
-    int adjacent;
-    int hold_state;
-    const int matrix_size = 100; // n x n matrix
-
-    // Create output file
-    ofstream outputfile;
-
-    // Initalize Randomizers
+    // Init
     std::random_device rd;
     std::mt19937 mt(rd());
+    std::uniform_int_distribution<int> random_cell(0, MATRIX_SIZE - 1);
+    std::uniform_int_distribution<int> random_adj(1, 4);
 
-    // Create random functions
-    std::uniform_int_distribution<int> randomcell(0, matrix_size);
-    std::uniform_int_distribution<int> randomadjacent(1, 4);
+    // Create file
+    ofstream output_file;
+    ofstream final_state;
 
-    // Create state
-    int state[matrix_size][matrix_size] = { {0 } };  // Init to 0
+    // Variables
+    int random_x, random_y;
+    int adjacent;
+    int hold_state;
 
-    // Set half to 0
-    for (int i = 0; i < 100; i++) {
-        for (int j = 0; j < 50; j++) {
-            state[i][j] = 1;
+    // Initialize State, Set All 0
+    vector<vector<int>> state(MATRIX_SIZE, vector<int>(MATRIX_SIZE));
+
+    output_file.open("sweeps.txt");
+
+    // Set half to 1
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE / 2; j++) {
+            state[j][i] = 1;
         }
     }
 
-    // Write to file
-    for (int i = 0; i < 100; i++) {
-        for (int j = 0; j < 100; j++) {
-            outputfile << state[j][i];
+    // Write initial state to file
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            output_file << state[j][i];
         }
-        outputfile << "\n";
+        output_file << "\n";
     }
-    outputfile << "\n";
+    output_file << "\n";
 
-    // Do the thing
+    // Do the things
     for (int i = 0; i < 10000; i++) {
         for (int j = 0; j < 10000; j++) {
-            
-            bool check_wall = false;
-            random_x = randomcell(mt);
-            random_y = randomcell(mt);
-            // Randomize
+            system("cls");
+            std::cout << "Currently on iteration " << i << "/10000 and on sweep " << j << "/10000." << endl;
+            std::cout << std::setprecision(3) << ((i + 1) * (j + 1)/(10000*10000)) * 100 << "% done";
+
+            if (DEBUG) {
+                cout << "does it get here";
+            }
+
+            // Generate random values
+            random_x = random_cell(mt);
+            random_y = random_cell(mt);
+
+            check_wall = false;
+
             while (!check_wall) {
-                adjacent = randomadjacent(mt);
+                adjacent = random_adj(mt);
+                // cout << "looping";
 
-                check_wall = check(random_x, random_y, adjacent);
+                // Check x-axis walls and y-axis walls
+                if (!((random_x == 0 && adjacent == 1 || random_x == MATRIX_SIZE - 1 && adjacent == 3) || (random_y == 0 && adjacent == 4 || random_y == MATRIX_SIZE - 1 && adjacent == 2))) {
+                    check_wall = true;
+                }
+
+            }
+
+            if (DEBUG) {
+                cout << random_x;
+                cout << random_y;
+                cout << adjacent;
+            }
+
+            // Update states
+            hold_state = state[random_x][random_y];
+            switch (adjacent) {
+            case 1:
+                // cout << "case 1";
+                state[random_x][random_y] = state[random_x - 1][random_y];
+                state[random_x - 1][random_y] = hold_state;
+                break;
+            case 2:
+                // cout << "case 2";
+                state[random_x][random_y] = state[random_x][random_y + 1];
+                state[random_x][random_y + 1] = hold_state;
+                break;
+            case 3:
+                // cout << "case 3";
+                state[random_x][random_y] = state[random_x + 1][random_y];
+                state[random_x + 1][random_y] = hold_state;
+                break;
+            case 4:
+                // cout << "case 4";
+                state[random_x][random_y] = state[random_x][random_y - 1];
+                state[random_x][random_y] = hold_state;
+                break;
             }
             
-            hold_state = state[random_x][random_y];
-
-            //std::cout << adjacent;
-            //std::cout << random_x;
-            //std::cout << random_y;
-            switch (adjacent) {
-                case 1:
-                    state[random_x][random_y] = state[random_x - 1][random_y];
-                    state[random_x - 1][random_y] = hold_state;
-                case 2:
-                    state[random_x][random_y] = state[random_x][random_y + 1];
-                    state[random_x][random_y + 1] = hold_state;
-                case 3:
-                    state[random_x][random_y] = state[random_x + 1][random_y];
-                    state[random_x + 1][random_y] = hold_state;
-                case 4:
-                    state[random_x][random_y] = state[random_x][random_y - 1];
-                    state[random_x][random_y] = hold_state;
+            if (DEBUG) {
+                std::this_thread::sleep_for(1s);
             }
+            
+
         }
 
-
-        for (int k = 0; k < 100; k++) {
-            for (int l = 0; l < 100; l++) {
-                outputfile << state[l][k];
+        for (int k = 0; k < MATRIX_SIZE; k++) {
+            for (int l = 0; l < MATRIX_SIZE; l++) {
+                output_file << state[l][k];
             }
-            outputfile << "\n";
+            output_file << "\n";
         }
-        outputfile << "\n";
+        output_file << "\n";
+
+        if (i == 9999) {
+            final_state.open("final_sweep.txt");
+            for (int k = 0; k < MATRIX_SIZE; k++) {
+                for (int l = 0; l < MATRIX_SIZE; l++) {
+                    final_state << state[l][k];
+                }
+                final_state << "\n";
+            }
+            final_state << "\n";
+            final_state.close();
+        }
     }
 
-    outputfile.close();
-
+    output_file.close();
 }
